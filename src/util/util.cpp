@@ -919,15 +919,15 @@ bool makebakname(char *ofilename, size_t size, const char *ifilename, bool force
 **************************************************************************/
 
 unsigned get_ratio(upx_uint64_t u_len, upx_uint64_t c_len) {
-    constexpr unsigned n = 1000 * 1000;
+    constexpr unsigned N = 1000 * 1000;
     if (u_len == 0)
-        return c_len == 0 ? 0 : n;
-    upx_uint64_t x = c_len * n;
-    assert(x / n == c_len);
+        return c_len == 0 ? 0 : N;
+    upx_uint64_t x = c_len * N;
+    assert(x / N == c_len); // sanity check
     x /= u_len;
-    x += 50;         // rounding
-    if (x >= 10 * n) // >= "1000%"
-        x = 10 * n - 1;
+    x += 50;         // rounding; cannot overflow
+    if (x >= 10 * N) // >= "1000%"
+        x = 10 * N - 1;
     return ACC_ICONV(unsigned, x);
 }
 

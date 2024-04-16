@@ -512,10 +512,10 @@ void PeFile32::processRelocs() // pass1
             infoWarning("skipping unsupported relocation type %d (%d)", ic, counts[ic]);
 
     LE32 *fix[4];
-    upx::ArrayDeleter<LE32 **> fixdel{fix, 0}; // don't leak memory
+    upx::ArrayDeleter<LE32 **const> fix_deleter{fix, 0}; // don't leak memory
     for (unsigned ic = 0; ic <= IMAGE_REL_BASED_HIGHLOW; ic++) {
         fix[ic] = New(LE32, counts[ic]);
-        fixdel.count += 1;
+        fix_deleter.count += 1;
     }
 
     unsigned xcounts[4];
@@ -614,10 +614,10 @@ void PeFile64::processRelocs() // pass1
             infoWarning("skipping unsupported relocation type %d (%d)", ic, counts[ic]);
 
     LE32 *fix[16];
-    upx::ArrayDeleter<LE32 **> fixdel{fix, 0}; // don't leak memory
+    upx::ArrayDeleter<LE32 **const> fix_deleter{fix, 0}; // don't leak memory
     for (unsigned ic = 0; ic < 16; ic++) {
         fix[ic] = New(LE32, counts[ic]);
-        fixdel.count += 1;
+        fix_deleter.count += 1;
     }
 
     unsigned xcounts[16];
@@ -1924,7 +1924,7 @@ void PeFile::processResources(Resource *res) {
     SPAN_S_VAR(byte, ores, oresources + res->dirsize());
 
     char *keep_icons = nullptr; // icon ids in the first icon group
-    upx::ArrayDeleter<char **> keep_icons_deleter{&keep_icons, 1}; // don't leak memory
+    upx::ArrayDeleter<char **const> keep_icons_deleter{&keep_icons, 1}; // don't leak memory
     unsigned iconsin1stdir = 0;
     if (opt->win32_pe.compress_icons == 2)
         while (res->next()) // there is no rewind() in Resource

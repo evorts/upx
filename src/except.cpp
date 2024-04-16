@@ -195,7 +195,7 @@ void throwAssertFailed(const char *expr, const char *file, int line, const char 
     }
 }
 
-const char *prettyName(const char *n) noexcept {
+const char *prettyExceptionName(const char *n) noexcept {
     if (n == nullptr)
         return "(null)";
     while (*n) {

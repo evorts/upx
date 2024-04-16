@@ -248,10 +248,21 @@ TEST_CASE("upx::ObjectDeleter 1") {
     LE16 *o = nullptr; // object
     LE32 *a = nullptr; // array
     {
-        const upx::ObjectDeleter<LE16 **> o_deleter{&o, 1};
+        upx::ObjectDeleter<LE16 **> o_deleter{&o, 1};
         o = new LE16;
         assert(o != nullptr);
-        const upx::ArrayDeleter<LE32 **> a_deleter{&a, 1};
+        upx::ArrayDeleter<LE32 **> a_deleter{&a, 1};
+        a = New(LE32, 1);
+        assert(a != nullptr);
+    }
+    assert(o == nullptr);
+    assert(a == nullptr);
+    // test "const" versions
+    {
+        const upx::ObjectDeleter<LE16 **const> o_deleter{&o, 1};
+        o = new LE16;
+        assert(o != nullptr);
+        const upx::ArrayDeleter<LE32 **const> a_deleter{&a, 1};
         a = New(LE32, 1);
         assert(a != nullptr);
     }
@@ -355,6 +366,10 @@ struct TestTriBool {
         static_assert(alignof(typename T::value_type) == alignof(typename T::underlying_type));
 #if (ACC_ARCH_M68K && ACC_OS_TOS && ACC_CC_GNUC) && defined(__MINT__)
         // broken compiler or broken ABI
+#elif __GNUC__ == 7 && defined(__i386__) && !defined(__clang__)
+        static_assert(sizeof(T) == sizeof(typename T::underlying_type));
+        // gcc-7 "long long" enum align bug/ABI problem on i386
+        static_assert(alignof(T) <= alignof(typename T::underlying_type));
 #else
         static_assert(sizeof(T) == sizeof(typename T::underlying_type));
         static_assert(alignof(T) == alignof(typename T::underlying_type));
